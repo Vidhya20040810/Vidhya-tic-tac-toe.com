@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Tic Tac Toe Online</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        nav {
+            background-color: #fff;
+            padding: 15px 20px;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .logo-container { /* Container for the image and text */
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between image and text */
+}
+
+.logo-image {
+    height: 50px; /* Adjust as needed */
+}
+
+.logo-text {
+    font-size: 48px;
+    font-weight: bold;
+    color: #28a745;
+}
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+    h1, h2 {
+      text-align: center;
+    }
+    .form-container {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+    .form-container input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .form-container button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .form-container button:hover {
+      background-color: #0056b3;
+    }
+    .link {
+      margin-top: 10px;
+      text-align: center;
+    }
+    .link a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+    .link a:hover {
+      text-decoration: underline;
+    }   
+
+        .turn-indicator {
+            font-size: 20px;
+            margin-top: 20px;
+            color: #555;
+            font-weight: bold;
+        }
+         
+        .container {
+            max-width: 960px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .about-section {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-top: 40px;
+            max-width: 800px;
+            width: 90%;
+        }
+
+        h2 {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .about-section p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+
+    </style>
+</head>
+<body>
+    
+      <nav class="navbar">
+            <div class="logo">
+                <img src="22741402.jpg" alt="Tic Tac Toe logo" class="logo-image" >
+                <h7>Tic tac toe</h7>
+            </div>
+        <div>
+        <ul class="nav-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">About</a></li>
+        
+          </ul>
+        </div>
+      </nav>
+
+    <div class="container">
+        <h1>Welcome to Tic Tac Toe Challenges</h1>       
+        <p>Select a game mode to start:</p>
+        <div class="button-container">
+        <a href="home.html" class="button" >Single Player</a>
+        <a href="multiplayer.html"  class="button">Multiplayer</a>   
+      </div>
+       </div>
+      <div class="container">
+        <h1>About Tic Tac Toe Extended</h1>
+
+        <p>Welcome to Tic Tac Toe Extended! We offer a fresh twist on the classic game you know and love. While you're familiar with the traditional 3x3 grid, we've expanded the possibilities with larger game boards for a more strategic and engaging experience.</p>
+
+        <h2>Our Unique Game Variations</h2>
+
+        <ul>
+            <li>
+                <h3>5x5 Tic Tac Toe</h3>
+                <p>On our 5x5 grid, the goal remains the same: be the first player to get a line of your symbols horizontally, vertically, or diagonally. However, in this variation, you need to get <strong>three</strong> of your symbols in a row to win. This adds a new layer of tactical depth, requiring you to think several steps ahead and control more space on the board.</p>
+            </li>
+            <li>
+                <h3>6x6 Tic Tac Toe</h3>
+                <p>For an even greater challenge, try our 6x6 grid! Similar to the 5x5 version, the winning condition is to achieve a line of <strong>three</strong> of your symbols in a row. The larger board size opens up even more strategic opportunities and makes each game a unique puzzle to solve.</p>
+            </li>
+        </ul>
+        
+        <h2>Our Mission</h2>
+
+        <p>Our mission is to provide a fun and engaging way to play Tic Tac Toe with friends and family. By introducing these larger board variations with the familiar "three-in-a-row" win condition, we aim to offer a blend of nostalgic gameplay with a refreshing strategic depth that keeps players coming back for more.</p>
+
+        <p>We believe that these extended versions of Tic Tac Toe offer a more nuanced and satisfying experience, appealing to both casual players and those looking for a bit more of a strategic challenge.</p>
+
+        <p>Thank you for playing Tic Tac Toe Extended!</p>
+    </div>
+      
+</body>
+</html>  

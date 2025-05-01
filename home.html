@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic Tac Toe with AI</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            font-family: sans-serif;
+        }
+
+        #game-container {
+            text-align: center;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(5, 50px);
+            grid-gap: 6px;
+            margin-bottom: 15px;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #3498db;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            cursor: pointer;
+            background-color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .cell:hover {
+            background-color: #ecf0f1;
+        }
+
+        #message {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        #resetButton {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #resetButton:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+            <div class="cell" data-index="9"></div>
+            <div class="cell" data-index="10"></div>
+            <div class="cell" data-index="11"></div>
+            <div class="cell" data-index="12"></div>
+            <div class="cell" data-index="13"></div>
+            <div class="cell" data-index="14"></div>
+            <div class="cell" data-index="15"></div>
+            <div class="cell" data-index="16"></div>
+            <div class="cell" data-index="17"></div>
+            <div class="cell" data-index="18"></div>
+            <div class="cell" data-index="19"></div>
+            <div class="cell" data-index="20"></div>
+            <div class="cell" data-index="21"></div>
+            <div class="cell" data-index="22"></div>
+            <div class="cell" data-index="23"></div>
+            <div class="cell" data-index="24"></div>
+        </div>
+        <div id="message"></div>
+        <!-- Scoreboard element -->
+         <div id="scoreboard">
+            <p>CurrentPlayer: 0</p>
+            <p>AI: 0</p>
+            <p>Draws: 0</p>
+            <p>Round: 0 / 5</p>
+         </div>
+         <button id="nextRoundButton" onclick="nextRound()">Next Round</button>
+        <button id="resetSeriesButton" onclick="resetSeries()">Reset Series</button>
+    </div>
+
+    <script>
+        // Define board dimensions & initial state
+        const size = 5;
+        // Set total rounds to a high number (or remove the check entirely)
+        const totalRounds = 5;
+        let board = Array(25).fill("");
+        let currentPlayer = "X";   // Human always starts as "X"
+        const ai = "O";
+        let gameActive = true;
+        // Use scores.currentPlayer and scores.ai for win count; draws for tied rounds.
+        let scores = { currentPlayer: 0, ai: 0, draws: 0 };
+        let roundsPlayed = 0;
+        // Flag to force AI win exactly once (in round 1)
+        let aiForcedWinDone = false;
+
+        function updateScoreboard() {
+            const scoreboard = document.getElementById('scoreboard');
+            if (scoreboard) {
+                scoreboard.innerHTML = `
+                    <p>CurrentPlayer: ${scores.currentPlayer}</p>
+                    <p>AI: ${scores.ai}</p>
+                    <p>Draws: ${scores.draws}</p>
+                    <p>Round: ${roundsPlayed} / ${totalRounds}</p>
+                `;
+            }
+        }
+
+
+          // Count all winning triplets (3 in a row) present on the board
+        function countWins() {
+            const winLength = 3;
+            let countX = 0, countO = 0;
+
+      // Horizontal segments
+      for (let row = 0; row < size; row++) {
+          for (let col = 0; col <= size - winLength; col++) {
+              let segment = [];
+              for (let k = 0; k < winLength; k++) {
+                  segment.push(board[row * size + col + k]);
+              }
+              if (segment.every(s => s === "X")) {
+                countX++;
+              } else if (segment.every(s => s === "O")) {
+                  countO++;
+              }
+          }
+      }
+      // Vertical segments
+      for (let col = 0; col < size; col++) {
+          for (let row = 0; row <= size - winLength; row++) {
+              let segment = [];
+              for (let k = 0; k < winLength; k++) {
+                  segment.push(board[(row + k) * size + col]);
+              }
+              if (segment.every(s => s === "X")) {
+                  countX++;
+                } else if (segment.every(s => s === "O")) {
+                  countO++;
+              }
+          }
+      }
+      // Diagonal down-left segments
+      for (let row = 0; row <= size - winLength; row++) {
+          for (let col = winLength - 1; col < size; col++) {
+              let segment = [];
+              for (let k = 0; k < winLength; k++) {
+                  segment.push(board[(row + k) * size + (col - k)]);
+              }
+              if (segment.every(s => s === "X")) {
+                                    countX++;
+              } else if (segment.every(s => s === "O")) {
+                  countO++;
+              }
+          }
+      }
+      return { X: countX, O: countO };
+  }
+ 
+        // Win check function using four directions
+        function checkWin() {
+            const winLength = 3;
+            for (let row = 0; row < size; row++) {
+                for (let col = 0; col < size; col++) {
+                    const index = row * size + col;
+                    const cell = board[index];
+                    if (!cell) continue;
+
+                    // Check horizontally to the right
+                    if (col <= size - winLength) {
+                        let win = true;
+                        for (let k = 0; k < winLength; k++) {
+                            if (board[row * size + (col + k)] !== cell) {
+                                win = false;
+                                break;
+                            }
+                        }
+                        if (win) return cell;
+                    }
+
+                    // Check vertically downwards
+                    if (row <= size - winLength) {
+                        let win = true;
+                        for (let k = 0; k < winLength; k++) {
+                            if (board[(row + k) * size + col] !== cell) {
+                                win = false;
+                                break;
+                            }
+                        }
+                        if (win) return cell;
+                    }
+
+                    // Check diagonal down-right
+                    if (row <= size - winLength && col <= size - winLength) {
+                        let win = true;
+                        for (let k = 0; k < winLength; k++) {
+                            if (board[(row + k) * size + (col + k)] !== cell) {
+                                win = false;
+                                break;
+                            }
+                        }
+                        if (win) return cell;
+                    }
+
+                    // Check diagonal down-left
+                    if (row <= size - winLength && col >= winLength - 1) {
+                        let win = true;
+                        for (let k = 0; k < winLength; k++) {
+                            if (board[(row + k) * size + (col - k)] !== cell) {
+                                win = false;
+                                break;
+                            }
+                        }
+                        if (win) return cell;
+                    }
+                }
+            }
+            return null; // No winner found
+        }
+
+
+          // End-of-round handler that accepts the win counts from the filled board.
+  function roundOver(winCounts) {
+      roundsPlayed++;
+      if (winCounts.X > winCounts.O) {
+          scores.currentPlayer += winCounts.X;  // increment score by number of X triplets
+      } else if (winCounts.O > winCounts.X) {
+          scores.ai += winCounts.O;
+      } else {
+          scores.draws++;
+      }
+      updateScoreboard();
+      gameActive = false;
+      document.getElementById('nextRoundButton').disabled = (roundsPlayed >= totalRounds);
+      if (roundsPlayed >= totalRounds) {
+          let overall;
+          if (scores.currentPlayer > scores.ai) {
+              overall = "CurrentPlayer wins the series!";
+          } else if (scores.ai > scores.currentPlayer) {
+              overall = "AI wins the series!";
+            } else {
+              overall = "Series is a tie!";
+          }
+          document.getElementById('message').textContent = overall;
+      }
+      else {
+          // Display the win counts for this round
+          document.getElementById('message').textContent =
+            `Round complete! X triplets: ${winCounts.X}, O triplets: ${winCounts.O}`;
+      }
+  }
+
+                // End-of-round handler: update scores and UI; disable board; if series over, show overall result.
+        function roundOver(winner) {
+            roundsPlayed++;
+            if (winner === "X") {
+                scores.currentPlayer++;
+            } else if (winner === "O") {
+                scores.ai++;
+            } else {
+                scores.draws++;
+            }
+            updateScoreboard();
+            gameActive = false;
+            document.getElementById('nextRoundButton').disabled = (roundsPlayed >= totalRounds);
+            if (roundsPlayed >= totalRounds) {
+                let overall;
+                if (scores.currentPlayer > scores.ai) {
+                    overall = "CurrentPlayer wins the series!";
+                } else if (scores.ai > scores.currentPlayer) {
+                    overall = "AI wins the series!";
+                } else {
+                    overall = "Series is a tie!";
+                }
+                document.getElementById('message').textContent = overall;
+            }
+        }
+
+        // CurrentPlayer move handler — sets "X" then triggers AI move
+        function handleCellClick(event) {
+            if (!gameActive) return;
+            const cell = event.target.closest('.cell');
+            if (!cell) return;
+            const index = parseInt(cell.getAttribute('data-index'));
+            if (board[index] !== "") return; // already filled
+
+            // Set currentPlayer move ("X")
+            board[index] = "X";
+            cell.textContent = "X";
+            console.log("Board after currentPlayer move:", board);
+
+            let winner = checkWin();
+            if (winner) {
+                // currentPlayer wins this round
+                if(winner === "O"){
+                  document.getElementById('message').textContent="AI has won this round!";
+                } else{
+                  document.getElementById('message').textContent="CurrentPlayer has won this round!";
+                }
+                roundOver(winner);
+                return;
+              }
+            if (!board.includes("")) {
+                document.getElementById('message').textContent = "Round tied!";
+                roundOver(null);
+                return;
+            }
+
+            // Switch to AI turn
+            currentPlayer = ai;
+            aiMove();
+        }
+
+  function aiMove() {
+    if (!gameActive) return;
+    
+    // Get all empty cells
+    const emptyIndices = board
+      .map((cell, index) => (cell === "" ? index : null))
+      .filter(index => index !== null);
+    
+    let move;
+
+    // 1. Check for a winning move for AI ("O")
+    for (let i of emptyIndices) {
+      board[i] = "O";
+      if (checkWin() === "O") {
+        move = i;
+        break;
+      }
+      board[i] = "";
+    }
+
+    // 2. Block human winning move ("X") if no winning move is found
+    if (move === undefined) {
+      for (let i of emptyIndices) {
+        board[i] = "X";
+        if (checkWin() === "X") {
+          move = i;
+          board[i] = ""; // revert temporary move
+          break;
+        }
+        board[i] = "";
+      }
+    }
+    
+    // 3. If no smart move is found, pick a random empty cell.
+    if (move === undefined) {
+      move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+    }
+    
+    // Make the move for AI.
+    board[move] = "O";
+    const cellElement = document.querySelector(`.cell[data-index="${move}"]`);
+    if (cellElement) {
+      cellElement.textContent = "O";
+    }
+    console.log("Board after AI move:", board);
+    
+    let winner = checkWin();
+    if (winner) {
+        if(winner === "O"){
+          document.getElementById('message').textContent="AI has won this round!";
+        } else{
+          document.getElementById('message').textContent="CurrentPlayer has won this round!";
+        }
+      roundOver(winner);
+      return;
+    }
+    if (!board.includes("")) {
+      document.getElementById('message').textContent = "Round tied!";
+      roundOver(null);
+      return;
+    }
+    currentPlayer = "X";
+  }
+
+                // Start next round: clear the board while preserving series scores.
+                function nextRound() {
+            board = Array(25).fill("");
+            gameActive = true;
+            currentPlayer = "X";
+            document.querySelectorAll('.cell').forEach(cell => { cell.textContent = ""; });
+            document.getElementById('message').textContent = "";
+            document.getElementById('nextRoundButton').disabled = true;
+            console.log("Starting next round...");
+        }
+
+                // Reset entire series
+                function resetSeries() {
+            scores = { currentPlayer: 0, ai: 0, draws: 0 };
+            roundsPlayed = 0;
+            aiForcedWinDone = false;
+            updateScoreboard();
+            nextRound();
+        }
+
+                // Bind click events to cells
+                document.querySelectorAll('.cell').forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+        });
+
+        updateScoreboard();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Tic Tac Toe (4 Players)</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+         
+        .input-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-container input[type="text"] {
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        .input-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .input-container button:hover {
+            background-color: #0056b3;
+        }
+
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(6, 60px); /* Adjust for 6x6 */
+            grid-template-rows: repeat(6, 60px);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #fff;
+        }
+
+        .cell.x {
+            color: red;
+        }
+
+        .cell.o {
+            color: blue;
+        }
+
+        .cell.y {
+            color: green;
+        }
+
+        .cell.z {
+            color: purple;
+        }
+
+        .cell.x { color: red; }
+        .cell.o { color: blue; }
+        .cell.y { color: green; }
+        .cell.z { color: purple; }
+
+        .game-controls button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .scores {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .score-item {
+            margin-bottom: 8px;
+        }
+
+        .round-info {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .winner-message {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+         
+        #player-count-container {
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        #player-count-container label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        #player-count-container select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        #player-names-container {
+            display: none; /* Initially hidden */
+        }
+
+        #player-names-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        #player-names-container input[type="text"] {
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        #round-end-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #round-end-modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        #round-end-modal-content h3 {
+            margin-top: 0;
+        }
+
+        #round-end-modal-content button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        #round-end-modal-content button:hover {
+            background-color: #1e7e34;
+        }
+
+        #game-over-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-over-modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        #game-over-modal-content h2 {
+            margin-top: 0;
+        }
+
+        #game-over-modal-content button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        #game-over-modal-content button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="player-count-container">
+        <label for="num-players">Number of Players:</label>
+        <select id="num-players">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+        <button onclick="setupPlayerNames()">Next</button>
+    </div>
+
+    <div class="input-container" id="player-names-container" style="display: none;">
+        <h2>Enter Player Names</h2>
+        <div id="player-name-inputs">
+            </div>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+    <div class="round-info">Round: <span id="current-round">1</span> / 5</div>
+
+    <div class="board" id="game-board" style="display: none;">
+        </div>
+    <div class="game-controls" style="display: none;">
+        <button onclick="resetGame()">Reset Game</button>
+    </div>
+
+    <div class="board" id="game-board" style="display: none;">
+        </div>
+    <div class="game-controls" style="display: none;">
+        <button onclick="resetGame()">Reset Game</button>
+    </div>
+    <div class="scores" id="scores-container" style="display: none;">
+        <h2>Scores</h2>
+        <div id="player-score-items">
+            </div>
+        <p class="score-item">Draws: <span id="draws">0</span></p>
+    </div>
+    <div class="winner-message" id="winner-message"></div>
+
+    <div id="round-end-modal">
+        <div id="round-end-modal-content">
+            <h3 id="round-result"></h3>
+            <button onclick="nextRound()">Next Round</button>
+        </div>
+    </div>
+
+    <div id="game-over-modal">
+        <div id="game-over-modal-content">
+            <h2 id="game-winner"></h2>
+            <button onclick="resetFullGame()">Play Again</button>
+        </div>
+    </div>
+
+    <div class="winner-message" id="winner-message"></div>
+    <script>
+        const playerCountContainer = document.getElementById('player-count-container');
+        const numPlayersSelect = document.getElementById('num-players');
+        const playerNamesContainer = document.getElementById('player-names-container');
+        const playerNameInputsDiv = document.getElementById('player-name-inputs');
+        const gameBoardElement = document.getElementById('game-board');
+        const gameControlsElement = document.querySelector('.game-controls');
+        const scoresContainerElement = document.getElementById('scores-container');
+        const playerScoreItemsDiv = document.getElementById('player-score-items');
+        const boardElement = document.querySelector('.board');
+        const drawsElement = document.getElementById('draws');
+        const winnerMessageElement = document.getElementById('winner-message');
+        const currentRoundElement = document.getElementById('current-round');
+        const roundEndModal = document.getElementById('round-end-modal');
+        const roundResultElement = document.getElementById('round-result');
+        const gameOverModal = document.getElementById('game-over-modal');
+        const gameWinnerElement = document.getElementById('game-winner');
+
+
+        let numPlayers = 2;
+        let playerNames = {};
+        let playerSymbols = ['x', 'o', 'y', 'z']; // Use x, o, y, z as symbols
+        let currentPlayerIndex = 0;
+        let board = Array(36).fill(null); // 6x6 board
+        let scores = {};
+        let draws = 0;
+        let gameActive = false;
+        let currentRound = 1;
+        const totalRounds = 5;
+
+        numPlayersSelect.addEventListener('change', () => {
+            numPlayers = parseInt(numPlayersSelect.value);
+        });
+
+        function setupPlayerNames() {
+            playerCountContainer.style.display = 'none';
+            playerNamesContainer.style.display = 'block';
+            playerNameInputsDiv.innerHTML = '';
+            for (let i = 0; i < numPlayers; i++) {
+                const label = document.createElement('label');
+                label.textContent = `Player ${playerSymbols[i].toUpperCase()} Name:`;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = `player-${playerSymbols[i]}-name`;
+                input.value = `Player ${playerSymbols[i].toUpperCase()}`;
+                playerNameInputsDiv.appendChild(label);
+                playerNameInputsDiv.appendChild(input);
+            }
+        }
+
+        function startGame() {
+            playerNames = {};
+            playerScoreItemsDiv.innerHTML = '';
+            scores = {};
+            for (let i = 0; i < numPlayers; i++) {
+                const symbol = playerSymbols[i];
+                const nameInput = document.getElementById(`player-${symbol}-name`);
+                playerNames[symbol] = nameInput.value.trim() || symbol.toUpperCase();
+                scores[symbol] = 0;
+
+                const scoreItem = document.createElement('p');
+                scoreItem.classList.add('score-item');
+                scoreItem.innerHTML = `<span id="name-<span class="math-inline">\{symbol\}"\></span>{playerNames[symbol]}</span>: <span id="score-${symbol}">0</span>`;
+                playerScoreItemsDiv.appendChild(scoreItem);
+            }
+
+            playerNamesContainer.style.display = 'none';
+            gameBoardElement.style.display = 'grid';
+            gameControlsElement.style.display = 'block';
+            scoresContainerElement.style.display = 'block';
+            currentRoundElement.textContent = currentRound;
+            gameActive = true;
+            resetBoard();
+            updateScores();
+        }
+
+        function createBoard() {
+            boardElement.innerHTML = '';
+            for (let i = 0; i < 36; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = i;
+                cell.addEventListener('click', handleCellClick);
+                boardElement.appendChild(cell);
+            }
+        }
+
+        function handleCellClick(event) {
+            if (!gameActive) return;
+
+            const cell = event.target;
+            const index = parseInt(cell.dataset.index);
+            const currentPlayerSymbol = playerSymbols[currentPlayerIndex];
+
+            if (board[index] === null) {
+                board[index] = currentPlayerSymbol;
+                cell.classList.add(currentPlayerSymbol);
+                cell.textContent = currentPlayerSymbol.toUpperCase();
+                checkWin();
+                switchPlayer();
+            }
+        }
+
+
+
+        function checkWin() {
+            const winningLines = [
+                // Rows
+                [0, 1, 2], [1, 2, 3], [2, 3, 4], [3, 4, 5],
+                [6, 7, 8], [7, 8, 9], [8, 9, 10], [9, 10, 11],
+                [12, 13, 14], [13, 14, 15], [14, 15, 16], [15, 16, 17],
+                [18, 19, 20], [19, 20, 21], [20, 21, 22], [21, 22, 23],
+                [24, 25, 26], [25, 26, 27], [26, 27, 28], [27, 28, 29],
+                [30, 31, 32], [31, 32, 33], [32, 33, 34], [33, 34, 35],
+                // Columns
+                [0, 6, 12], [6, 12, 18], [12, 18, 24], [18, 24, 30],
+                [1, 7, 13], [7, 13, 19], [13, 19, 25], [19, 25, 31],
+                [2, 8, 14], [8, 14, 20], [14, 20, 26], [20, 26, 32],
+                [3, 9, 15], [9, 15, 21], [15, 21, 27], [21, 27, 33],
+                [4, 10, 16], [10, 16, 22], [16, 22, 28], [22, 28, 34],
+                [5, 11, 17], [11, 17, 23], [17, 23, 29], [23, 29, 35],
+                // Diagonals
+                [0, 7, 14], [7, 14, 21], [14, 21, 28], [21, 28, 35],
+                [5, 10, 15], [10, 15, 20], [15, 20, 25], [20, 25, 30],
+                [6, 13, 20], [13, 20, 27], [20, 27, 34],
+                [1, 8, 15], [8, 15, 22], [15, 22, 29],
+                [4, 9, 14], [9, 14, 19], [14, 19, 24],
+                [11, 16, 21], [16, 21, 26], [21, 26, 31],
+                [12, 9, 26], [19, 26, 33],
+                [2, 9, 16], [9, 16, 23],
+                [3, 8, 13], [8, 13, 18],
+                [17, 22, 27], [22, 27, 32],
+                [3, 10, 17],
+                [18, 25, 32],
+            ];
+
+            for (const line of winningLines) {
+                const [a, b, c] = line;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    endRound(board[a]);
+                    return;
+                }
+            }
+
+            if (!board.includes(null)) {
+                endRound(null); // It's a draw
+            }
+        }
+
+        function switchPlayer() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % numPlayers;
+        }
+        function endRound(winner) {
+            gameActive = false;
+            if (winner) {
+                roundResultElement.textContent = `${playerNames[winner]} wins the round!`;
+                scores[winner]++;
+            } else {
+                roundResultElement.textContent = "This round is a draw!";
+                draws++;
+            }
+            updateScores();
+            roundEndModal.style.display = 'flex';
+        }
+
+        function nextRound() {
+            roundEndModal.style.display = 'none';
+            currentRound++;
+            currentRoundElement.textContent = currentRound;
+            if (currentRound > totalRounds) {
+                endGameSeries(); // Call function to end the entire game
+            } else {
+                resetBoard();
+                gameActive = true;
+            }
+        }
+
+        function endGameSeries() {
+            gameActive = false;
+            let finalWinner = null;
+            let highestScore = -1;
+            let winners = [];
+
+            for (const symbol in scores) {
+                if (scores[symbol] > highestScore) {
+                    highestScore = scores[symbol];
+                    winners = [playerNames[symbol]];
+                } else if (scores[symbol] === highestScore) {
+                    winners.push(playerNames[symbol]);
+                }
+            }
+
+            gameOverModal.style.display = 'flex';
+            if (winners.length === 1) {
+                gameWinnerElement.textContent = `${winners[0]} wins the game!`;
+            } else if (winners.length > 1) {
+                gameWinnerElement.textContent = `The game is a tie between ${winners.join(' and ')}!`;
+            } else {
+                gameWinnerElement.textContent = "The game ends in a draw!"; // If all scores are 0
+            }
+        }
+
+        function resetFullGame() {
+            gameOverModal.style.display = 'none';
+            currentRound = 1;
+            scores = {};
+            draws = 0;
+            startGame(); // Re-initialize the game setup
+        }
+
+
+
+        function endGame(winner) {
+            gameActive = false;
+            if (winner) {
+                winnerMessageElement.textContent = `${playerNames[winner]} wins!`;
+                scores[winner]++;
+                updateScores();
+            } else {
+                winnerMessageElement.textContent = "It's a draw!";
+                draws++;
+                updateScores();
+            }
+        }
+
+        function updateScores() {
+            playerScoreItemsDiv.innerHTML = ''; // Clear previous scores
+            for (const symbol in scores) {
+                const scoreItem = document.createElement('p');
+                scoreItem.classList.add('score-item');
+                scoreItem.innerHTML = `<span id="name-${symbol}">${playerNames[symbol]}</span>: <span id="score-${symbol}">${scores[symbol]}</span>`;
+                playerScoreItemsDiv.appendChild(scoreItem);
+    }
+    drawsElement.textContent = draws;
+}
+
+        function resetBoard() {
+            board = Array(36).fill(null);
+            currentPlayerIndex = 0;
+            winnerMessageElement.textContent = '';
+            createBoard();
+        }
+
+        function resetGame() {
+            for (const player in scores) {
+                scores[player] = 0;
+            }
+            draws = 0;
+            updateScores();
+            resetBoard();
+            gameActive = true;
+        }
+
+        // Initial setup: show player count selection
+        gameBoardElement.style.display = 'none';
+        gameControlsElement.style.display = 'none';
+        scoresContainerElement.style.display = 'none';
+
+    </script> 
+</body>
+</html>
